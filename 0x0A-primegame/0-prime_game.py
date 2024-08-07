@@ -1,33 +1,42 @@
 #!/usr/bin/python3
 
-def sieve_of_eratosthenes(max_n):
-    """Returns a list of primes up to max_n using the Sieve of Eratosthenes."""
-    is_prime = [True] * (max_n + 1)
+def sieve_of_eratosthenes(max_num):
+    """ Return a list of primes up to max_num, using the Sieve of Eratosthenes. """
+    is_prime = [True] * (max_num + 1)
     p = 2
-    while (p * p <= max_n):
-        if (is_prime[p]):
-            for i in range(p * p, max_n + 1, p):
+    while p * p <= max_num:
+        if is_prime[p]:
+            for i in range(p * p, max_num + 1, p):
                 is_prime[i] = False
         p += 1
-    return [p for p in range(2, max_n + 1) if is_prime[p]]
-
-def play_game(n):
-    """Simulates the game for a given n and returns the winner."""
-    primes = sieve_of_eratosthenes(n)
-    prime_count = len(primes)
-    
-    # The winner is determined by the number of primes
-    # If the count is odd, Maria wins; if even, Ben wins
-    return 'Maria' if prime_count % 2 == 1 else 'Ben'
+    return [p for p in range(2, max_num + 1) if is_prime[p]]
 
 def isWinner(x, nums):
-    """Determines the overall winner of x rounds."""
-    maria_wins = 0
-    ben_wins = 0
+    """ Determine who wins the most rounds in the game. """
+    def winner(n):
+        if n < 2:
+            return 'Ben'
+        
+        primes = sieve_of_eratosthenes(n)
+        count_moves = 0
+        
+        # Game simulation
+        numbers = [True] * (n + 1)  # True means the number is available
+        for prime in primes:
+            if prime > n:
+                break
+            if numbers[prime]:
+                count_moves += 1
+                # Remove prime and its multiples
+                for multiple in range(prime, n + 1, prime):
+                    numbers[multiple] = False
+        
+        return 'Maria' if count_moves % 2 != 0 else 'Ben'
     
-    for n in nums:
-        winner = play_game(n)
-        if winner == 'Maria':
+    maria_wins = ben_wins = 0
+    
+    for num in nums:
+        if winner(num) == 'Maria':
             maria_wins += 1
         else:
             ben_wins += 1
@@ -38,7 +47,3 @@ def isWinner(x, nums):
         return 'Ben'
     else:
         return None
-
-# Example usage
-if __name__ == "__main__":
-    print("Winner: {}".format(isWinner(5, [2, 5, 1, 4, 3])))
